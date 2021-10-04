@@ -39,7 +39,7 @@ def parse_user_meta(driver, usr_url):
 reviews = pd.read_csv('reviews_dedup.csv')
 uniques_profiles = reviews.user_profile.unique()
 
-uniques_profiles_meta_lst = list(map(lambda x: parse_user_meta(driver, x), uniques_profiles))
+uniques_profiles_meta_lst = list(map(lambda x: parse_user_meta(driver, x), uniques_profiles[:5]))
 
 uniques_profiles_meta_df = pd.DataFrame(uniques_profiles_meta_lst)
 
