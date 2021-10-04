@@ -1,4 +1,5 @@
 import os
+import json
 
 import pandas as pd
 from selenium import webdriver
@@ -36,12 +37,15 @@ def parse_user_meta(driver, usr_url):
     return result
 
 
-reviews = pd.read_csv('reviews_dedup.csv')
-uniques_profiles = reviews.user_profile.unique()
+result_json = {}
+for chunk_df in pd.read_csv('reviews_dedup.csv', chunksize=5000):
+    uniques_profiles = chunk_df.user_profile.unique()
+    #uniques_profiles_meta_lst = list(map(lambda x: parse_user_meta(driver, x), uniques_profiles))
+    for profile in uniques_profiles:
+        result_tmp = parse_user_meta(driver, profile)
+        result_json.update(result_tmp)
 
-uniques_profiles_meta_lst = list(map(lambda x: parse_user_meta(driver, x), uniques_profiles))
-
-uniques_profiles_meta_df = pd.DataFrame(uniques_profiles_meta_lst)
+#uniques_profiles_meta_df = pd.DataFrame(uniques_profiles_meta_lst)
 
 github = Github(os.environ.get("GITHUB_PERSONAL_ACCESS_TOKEN"))
 repository = github.get_user().get_repo(os.environ.get('REPOSITORY_NAME'))
@@ -49,10 +53,9 @@ repository = github.get_user().get_repo(os.environ.get('REPOSITORY_NAME'))
 filename = 'files/uniques_profiles_meta_df.json'
 
 try:
-    file = repository.create_file(filename, "create_file via PyGithub", uniques_profiles_meta_df.to_json())
+    file = repository.create_file(filename, "create_file via PyGithub", json.dumps(result_json)) #uniques_profiles_meta_df.to_json())
 except:
     file_content = repository.get_contents(filename)
-    file = repository.update_file(filename, "update_file via PyGithub", uniques_profiles_meta_df.to_json(),
-                                  file_content.sha
-                                  )
+    file = repository.update_file(filename, "update_file via PyGithub", json.dumps(result_json), file_content.sha
+                                  )#uniques_profiles_meta_df.to_json()
 
