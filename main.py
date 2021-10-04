@@ -47,5 +47,12 @@ github = Github(os.environ.get("GITHUB_PERSONAL_ACCESS_TOKEN"))
 repository = github.get_user().get_repo(os.environ.get('REPOSITORY_NAME'))
 
 filename = 'files/uniques_profiles_meta_df.json'
-file = repository.create_file(filename, "create_file via PyGithub", uniques_profiles_meta_df.to_json())
+
+try:
+    file = repository.create_file(filename, "create_file via PyGithub", uniques_profiles_meta_df.to_json())
+except:
+    file_content = repository.get_file_contents(filename)
+    file = repository.update_file(filename, "update_file via PyGithub", uniques_profiles_meta_df.to_json(),
+                                  file_content.sha
+                                  )
 
