@@ -51,7 +51,7 @@ filename = 'files/uniques_profiles_meta_df.json'
 try:
     file = repository.create_file(filename, "create_file via PyGithub", uniques_profiles_meta_df.to_json())
 except:
-    file_content = repository.get_file_contents(filename)
+    file_content = repository.get_contents(filename)
     file = repository.update_file(filename, "update_file via PyGithub", uniques_profiles_meta_df.to_json(),
                                   file_content.sha
                                   )
